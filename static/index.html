@@ -11,6 +11,7 @@
   :root{
     --bg:#12151c; --surface:#1a1f29; --surface-2:#212836; --border:#2b3242;
     --text:#edeae3; --text-dim:#9aa3b2; --gold:#c99a4b; --teal:#4fb286; --rust:#c1583d;
+    --blue:#6a9fd8; --purple:#9b7ed4;
     --radius:14px;
   }
   *{box-sizing:border-box;}
@@ -22,8 +23,8 @@
   .wrap{width:100%; padding:28px clamp(20px, 4vw, 48px) 64px;}
 
   .topbar{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:26px;}
-  .brand{display:flex; align-items:center; gap:14px;}
-  .logo{height:42px; width:auto; max-width:160px; object-fit:contain; flex-shrink:0;}
+  .brand{display:flex; align-items:center; gap:16px;}
+  .logo{height:100px; width:auto; max-width:320px; object-fit:contain; flex-shrink:0;}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:8px;animation:pulse 2.4s infinite; flex-shrink:0;}
   @media (prefers-reduced-motion:reduce){.dot{animation:none;}}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,178,134,.55);}70%{box-shadow:0 0 0 8px rgba(79,178,134,0);}100%{box-shadow:0 0 0 0 rgba(79,178,134,0);}}
@@ -42,18 +43,35 @@
   .date-range{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim);}
   select:focus-visible, .range-btn:focus-visible, .date-input:focus-visible{outline:2px solid var(--gold); outline-offset:1px;}
 
+  /* KPI cards — each with its own accent color (top bar + value) */
   .kpis{display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; margin-bottom:22px;}
   .kpi{
-    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+    background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent, var(--gold));
+    border-radius:var(--radius); padding:18px; position:relative; overflow:hidden;
     opacity:0; transform:translateY(10px); animation:rise .5s ease forwards;
+    transition:transform .2s ease, box-shadow .2s ease;
   }
-  .kpi:nth-child(1){animation-delay:.02s;} .kpi:nth-child(2){animation-delay:.07s;}
-  .kpi:nth-child(3){animation-delay:.12s;} .kpi:nth-child(4){animation-delay:.17s;}
-  .kpi:nth-child(5){animation-delay:.22s;}
+  .kpi:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.28); }
+  .kpi:nth-child(1){animation-delay:.02s; --accent:var(--teal);}
+  .kpi:nth-child(2){animation-delay:.07s; --accent:var(--gold);}
+  .kpi:nth-child(3){animation-delay:.12s; --accent:var(--blue);}
+  .kpi:nth-child(4){animation-delay:.17s; --accent:var(--purple);}
+  .kpi:nth-child(5){animation-delay:.22s; --accent:#e0a848;}
   @keyframes rise{to{opacity:1; transform:none;}}
   @media (prefers-reduced-motion:reduce){.kpi{animation:none; opacity:1; transform:none;}}
   .kpi .label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;}
-  .kpi .val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:26px; color:var(--gold); margin-top:8px; transition:opacity .25s ease;}
+  .kpi .val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:26px; color:var(--accent, var(--gold)); margin-top:8px;}
+  .kpi .icon-glow{ position:absolute; top:-10px; right:-10px; width:70px; height:70px; border-radius:50%;
+    background:var(--accent, var(--gold)); opacity:.08; filter:blur(6px); }
+
+  /* mini KPI row used inside gym-detail */
+  .mini-kpis{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:22px;}
+  .mini-kpi{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
+    border-left:3px solid var(--accent, var(--gold));
+  }
+  .mini-kpi .label{font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+  .mini-kpi .val{font-family:'IBM Plex Mono'; font-weight:600; font-size:20px; color:var(--accent, var(--gold)); margin-top:6px;}
 
   .panel{
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px;
@@ -86,12 +104,18 @@
   .lb-body{flex:1; min-width:0;}
   .lb-name{font-size:12.5px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .lb-bar-track{height:5px; border-radius:4px; background:rgba(255,255,255,.06); overflow:hidden;}
-  .lb-bar-fill{height:100%; border-radius:4px; width:0%; transition:width .8s ease;}
+  .lb-bar-fill{height:100%; border-radius:4px; width:0%; transition:width .5s ease;}
   .lb-val{font-family:'IBM Plex Mono'; font-size:12.5px; font-weight:600; flex-shrink:0; min-width:38px; text-align:right;}
 
-  .detail-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
-  .detail-head h2{font-family:'Oswald',sans-serif; font-size:19px; margin:0;}
+  /* gym detail — modern styling */
+  #detailPanel{background:linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);}
+  .detail-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; flex-wrap:wrap; gap:8px;}
+  .detail-head h2{font-family:'Oswald',sans-serif; font-size:22px; margin:0; display:flex; align-items:center; gap:8px;}
+  .detail-head h2::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--teal); display:inline-block;}
+  .detail-hint{font-size:11.5px; color:var(--text-dim); margin:0 0 18px;}
+  .sub-panel-title{font-family:'Oswald',sans-serif; font-size:13px; font-weight:600; margin:0 0 10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .sub-block{background:rgba(0,0,0,.15); border:1px solid var(--border); border-radius:12px; padding:14px;}
   table{width:100%; border-collapse:collapse; font-size:12.5px;}
   th{text-align:left; color:var(--text-dim); font-weight:600; text-transform:uppercase; font-size:10.5px; letter-spacing:.05em; padding:8px 10px; border-bottom:1px solid var(--border);}
   td{padding:9px 10px; border-bottom:1px solid rgba(255,255,255,.04);}
@@ -103,7 +127,7 @@
 
   footer{text-align:center; margin-top:24px; color:var(--text-dim); font-size:11.5px; font-family:'IBM Plex Mono';}
 
-  @media (max-width: 1000px){ .kpis{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width: 1000px){ .kpis{grid-template-columns:repeat(2,1fr);} .mini-kpis{grid-template-columns:1fr;} }
   @media (max-width: 700px){ .grid2{grid-template-columns:1fr;} }
 </style>
 </head>
@@ -115,8 +139,8 @@
       <img class="logo" src="/assets/logo.png" alt="OutMarket Agency" onerror="this.style.display='none'">
       <span class="dot"></span>
       <div>
-        <h1>OutMarket Agency</h1>
-        <p class="sub">Lead engagement &amp; booking performance across all locations</p>
+        <h1>Dashboard</h1>
+        <p class="sub">Lead engagement &amp; booking performance</p>
       </div>
     </div>
     <div class="controls">
@@ -135,11 +159,11 @@
   </div>
 
   <div class="kpis" id="kpis">
-    <div class="kpi"><div class="label">Total Leads</div><div class="val" id="kLeads">–</div></div>
-    <div class="kpi"><div class="label">Reply Rate</div><div class="val" id="kReplyRate">–</div></div>
-    <div class="kpi"><div class="label">Bookings</div><div class="val" id="kBookings">–</div></div>
-    <div class="kpi"><div class="label">Booking Rate</div><div class="val" id="kBookingRate">–</div></div>
-    <div class="kpi"><div class="label">Avg Reply Time</div><div class="val" id="kAvgReply">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Total Leads</div><div class="val" id="kLeads">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Reply Rate</div><div class="val" id="kReplyRate">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Bookings</div><div class="val" id="kBookings">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Booking Rate</div><div class="val" id="kBookingRate">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Avg Reply Time</div><div class="val" id="kAvgReply">–</div></div>
   </div>
 
   <div class="panel">
@@ -179,12 +203,12 @@
     </div>
     <div class="lb-card">
       <h3>💬 Top 5 — Reply Rate</h3>
-      <p class="lb-desc">Best engagement, min. 1 lead</p>
+      <p class="lb-desc">Best engagement</p>
       <div id="lbReply"></div>
     </div>
     <div class="lb-card attention">
       <h3>⚠️ Needs Attention</h3>
-      <p class="lb-desc">Lowest reply rate, min. 1 lead</p>
+      <p class="lb-desc">Lowest reply rate</p>
       <div id="lbLow"></div>
     </div>
   </div>
@@ -192,19 +216,22 @@
   <div class="panel" id="detailPanel" style="display:none;">
     <div class="detail-head">
       <h2 id="detailTitle">Gym Detail</h2>
-      <span class="sub" id="detailSummary"></span>
     </div>
+    <p class="detail-hint" id="detailHint"></p>
+
+    <div class="mini-kpis" id="miniKpis"></div>
+
     <div class="grid2">
       <div>
-        <h2 style="font-size:13px;">Leads</h2>
-        <div class="table-scroll">
+        <p class="sub-panel-title">Leads</p>
+        <div class="sub-block table-scroll">
           <table><thead><tr><th>Lead</th><th>Sent</th><th>Replied</th><th>Reply Date</th></tr></thead>
           <tbody id="leadsBody"></tbody></table>
         </div>
       </div>
       <div>
-        <h2 style="font-size:13px;">Bookings</h2>
-        <div class="table-scroll">
+        <p class="sub-panel-title">Bookings</p>
+        <div class="sub-block table-scroll">
           <table><thead><tr><th>Lead</th><th>Booking Date</th></tr></thead>
           <tbody id="bookingsBody"></tbody></table>
         </div>
@@ -221,6 +248,7 @@ let timeChart=null, pieChart=null, donutChart=null;
 let currentDays = 30;
 let currentGym = "all";
 let customRange = null;
+let inFlight = false; // prevents overlapping polls if a fetch is slow
 
 const PALETTE = ['#4fb286','#c99a4b','#6a9fd8','#c1583d','#9b7ed4','#5ec3c9','#d488b0','#8bb04a','#e0a848'];
 
@@ -238,9 +266,19 @@ function dateRangeParams(){
   return { start: start.toISOString(), end: end.toISOString() };
 }
 
-function fadeSwap(el, text){
-  el.style.opacity = 0;
-  setTimeout(() => { el.textContent = text; el.style.opacity = 1; }, 150);
+// Directly swaps text — no fade/flicker, value just changes in place
+function setText(el, text){
+  if (el.textContent !== String(text)) el.textContent = text;
+}
+
+// Returns a "nice" axis step (1, 2, 5, 10, 20, 50...) so ticks never show decimals
+function niceStep(maxVal){
+  if (maxVal <= 5) return 1;
+  if (maxVal <= 10) return 2;
+  if (maxVal <= 25) return 5;
+  if (maxVal <= 50) return 10;
+  if (maxVal <= 100) return 20;
+  return Math.ceil(maxVal / 50) * 10;
 }
 
 function updateVisibilityForGym(){
@@ -253,24 +291,30 @@ function updateVisibilityForGym(){
 async function loadGymList(){
   const gyms = await fetch(API + '/api/gyms').then(r => r.json());
   const sel = document.getElementById('gymSelect');
+  const existing = Array.from(sel.querySelectorAll('option:not(:first-child)')).map(o => o.value);
+  // only touch the DOM if the gym list actually changed — avoids resetting an open dropdown
+  const changed = existing.length !== gyms.length || existing.some((v, i) => v !== gyms[i]);
+  if (!changed) return;
+  const prevValue = sel.value;
   sel.querySelectorAll('option:not(:first-child)').forEach(o => o.remove());
   gyms.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g; opt.textContent = g;
     sel.appendChild(opt);
   });
+  if (gyms.includes(prevValue)) sel.value = prevValue;
 }
 
 async function loadKpis(){
   const params = { gym: currentGym, ...dateRangeParams() };
   const d = await fetch(API + '/api/kpis' + qs(params)).then(r => r.json());
-  fadeSwap(document.getElementById('kLeads'), d.total_leads);
-  fadeSwap(document.getElementById('kReplyRate'), d.reply_rate + '%');
-  fadeSwap(document.getElementById('kBookings'), d.total_bookings);
-  fadeSwap(document.getElementById('kBookingRate'), d.booking_rate + '%');
-  fadeSwap(document.getElementById('kAvgReply'), d.avg_reply_hours != null ? d.avg_reply_hours + 'h' : '—');
+  setText(document.getElementById('kLeads'), d.total_leads);
+  setText(document.getElementById('kReplyRate'), d.reply_rate + '%');
+  setText(document.getElementById('kBookings'), d.total_bookings);
+  setText(document.getElementById('kBookingRate'), d.booking_rate + '%');
+  setText(document.getElementById('kAvgReply'), d.avg_reply_hours != null ? d.avg_reply_hours + 'h' : '—');
 
-  if (currentGym !== 'all') return; // donut only shown in "All Gyms" view
+  if (currentGym !== 'all') return;
 
   const canvas = document.getElementById('donutChart');
   const emptyEl = document.getElementById('donutEmpty');
@@ -281,13 +325,18 @@ async function loadKpis(){
   }
   canvas.style.display='block'; emptyEl.style.display='none';
   const notReplied = d.total_leads - d.total_replied;
-  if (donutChart) donutChart.destroy();
-  donutChart = new Chart(canvas, {
-    type:'doughnut',
-    data:{ labels:['Replied','No Reply'], datasets:[{ data:[d.total_replied, notReplied], backgroundColor:['#4fb286','#c1583d'], borderColor:'#1a1f29', borderWidth:3 }] },
-    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
-      plugins:{ legend:{ position:'bottom', labels:{ color:'#9aa3b2', font:{size:11} } } } }
-  });
+
+  if (!donutChart){
+    donutChart = new Chart(canvas, {
+      type:'doughnut',
+      data:{ labels:['Replied','No Reply'], datasets:[{ data:[d.total_replied, notReplied], backgroundColor:['#4fb286','#c1583d'], borderColor:'#1a1f29', borderWidth:3 }] },
+      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:600, easing:'easeOutQuart' },
+        plugins:{ legend:{ position:'bottom', labels:{ color:'#9aa3b2', font:{size:11} } } } }
+    });
+  } else {
+    donutChart.data.datasets[0].data = [d.total_replied, notReplied];
+    donutChart.update('none'); // 'none' = no re-animation, just snaps to new values — feels instant, not "loading"
+  }
 }
 
 async function loadTimeseries(){
@@ -306,19 +355,32 @@ async function loadTimeseries(){
   const labels = rows.map(r => r.date);
   const leads = rows.map(r => r.leads);
   const bookings = rows.map(r => r.bookings);
+  const maxVal = Math.max(...leads, ...bookings, 1);
+  const step = niceStep(maxVal);
+  const suggestedMax = Math.ceil(maxVal / step) * step + step;
 
-  if (timeChart) timeChart.destroy();
-  timeChart = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets: [
-      { label:'Leads', data:leads, borderColor:'#4fb286', backgroundColor:'rgba(79,178,134,.15)', tension:.35, fill:true, pointRadius:3 },
-      { label:'Bookings', data:bookings, borderColor:'#c99a4b', backgroundColor:'rgba(201,154,75,.15)', tension:.35, fill:true, pointRadius:3 }
-    ]},
-    options: { responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
-      plugins:{ legend:{ labels:{ color:'#9aa3b2', font:{size:11} } } },
-      scales:{ x:{ ticks:{ color:'#9aa3b2', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' } },
-                y:{ ticks:{ color:'#9aa3b2', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' }, beginAtZero:true } } }
-  });
+  if (!timeChart){
+    timeChart = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label:'Leads', data:leads, borderColor:'#4fb286', backgroundColor:'rgba(79,178,134,.15)', tension:.35, fill:true, pointRadius:4, pointBackgroundColor:'#4fb286' },
+        { label:'Bookings', data:bookings, borderColor:'#c99a4b', backgroundColor:'rgba(201,154,75,.15)', tension:.35, fill:true, pointRadius:4, pointBackgroundColor:'#c99a4b' }
+      ]},
+      options: { responsive:true, maintainAspectRatio:false, animation:{ duration:600, easing:'easeOutQuart' },
+        plugins:{ legend:{ labels:{ color:'#9aa3b2', font:{size:11} } } },
+        scales:{
+          x:{ ticks:{ color:'#9aa3b2', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' } },
+          y:{ beginAtZero:true, suggestedMax, ticks:{ color:'#9aa3b2', font:{size:10}, stepSize: step, precision:0 }, grid:{ color:'rgba(255,255,255,.04)' } }
+        } }
+    });
+  } else {
+    timeChart.data.labels = labels;
+    timeChart.data.datasets[0].data = leads;
+    timeChart.data.datasets[1].data = bookings;
+    timeChart.options.scales.y.suggestedMax = suggestedMax;
+    timeChart.options.scales.y.ticks.stepSize = step;
+    timeChart.update('none'); // instant update, no flicker/redraw animation
+  }
 }
 
 async function loadPieChart(allGyms){
@@ -330,13 +392,20 @@ async function loadPieChart(allGyms){
   }
   pieCanvas.style.display='block'; pieEmpty.style.display='none';
   const labels = allGyms.map(g => g.gym_name);
-  if (pieChart) pieChart.destroy();
-  pieChart = new Chart(pieCanvas, {
-    type:'pie',
-    data:{ labels, datasets:[{ data:allGyms.map(g=>g.leads), backgroundColor:PALETTE, borderColor:'#1a1f29', borderWidth:2 }] },
-    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
-      plugins:{ legend:{ position:'right', labels:{ color:'#9aa3b2', font:{size:10}, boxWidth:12 } } } }
-  });
+  const data = allGyms.map(g => g.leads);
+
+  if (!pieChart){
+    pieChart = new Chart(pieCanvas, {
+      type:'pie',
+      data:{ labels, datasets:[{ data, backgroundColor:PALETTE, borderColor:'#1a1f29', borderWidth:2 }] },
+      options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:600, easing:'easeOutQuart' },
+        plugins:{ legend:{ position:'right', labels:{ color:'#9aa3b2', font:{size:10}, boxWidth:12 } } } }
+    });
+  } else {
+    pieChart.data.labels = labels;
+    pieChart.data.datasets[0].data = data;
+    pieChart.update('none');
+  }
 }
 
 function renderLbCard(containerId, rows, valueKey, color, isPercent){
@@ -350,14 +419,11 @@ function renderLbCard(containerId, rows, valueKey, color, isPercent){
       <span class="lb-rank">${i+1}</span>
       <div class="lb-body">
         <div class="lb-name">${g.gym_name}</div>
-        <div class="lb-bar-track"><div class="lb-bar-fill" style="width:0%;background:${color};" data-w="${pct}"></div></div>
+        <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${pct}%;background:${color};"></div></div>
       </div>
       <span class="lb-val" style="color:${color};">${val}</span>
     </div>`;
   }).join('');
-  requestAnimationFrame(() => {
-    el.querySelectorAll('.lb-bar-fill').forEach(bar => { bar.style.width = bar.dataset.w + '%'; });
-  });
 }
 
 function renderAllGymsTable(allGyms){
@@ -369,7 +435,7 @@ function renderAllGymsTable(allGyms){
 }
 
 async function loadLeaderboards(){
-  if (currentGym !== 'all') return; // these compare across gyms, irrelevant for single-gym view
+  if (currentGym !== 'all') return;
   const base = dateRangeParams();
   const [leads, bookings, reply, low, allGyms] = await Promise.all([
     fetch(API + '/api/leaderboard' + qs({metric:'leads', limit:5, order:'desc', ...base})).then(r=>r.json()),
@@ -395,8 +461,16 @@ async function loadGymDetail(){
   const d = await fetch(API + '/api/gym-detail' + qs(params)).then(r => r.json());
 
   document.getElementById('detailTitle').textContent = currentGym;
-  document.getElementById('detailSummary').textContent =
-    `${d.summary.total_leads} leads · ${d.summary.reply_rate}% replied · ${d.summary.total_bookings} bookings`;
+  document.getElementById('detailHint').textContent =
+    d.summary.total_leads === 0
+      ? 'No reply-tracking data recorded for this gym yet in this date range — bookings (if any) are shown below.'
+      : 'Full breakdown for this location, filtered to the selected date range.';
+
+  document.getElementById('miniKpis').innerHTML = `
+    <div class="mini-kpi" style="--accent:#4fb286;"><div class="label">Total Leads</div><div class="val">${d.summary.total_leads}</div></div>
+    <div class="mini-kpi" style="--accent:#c99a4b;"><div class="label">Reply Rate</div><div class="val">${d.summary.reply_rate}%</div></div>
+    <div class="mini-kpi" style="--accent:#6a9fd8;"><div class="label">Bookings</div><div class="val">${d.summary.total_bookings}</div></div>
+  `;
 
   document.getElementById('leadsBody').innerHTML = d.leads.length ? d.leads.map(l => `
     <tr><td>${l.lead_name || '—'}</td><td>${fmtDate(l.initial_sent_date)}</td>
@@ -409,9 +483,15 @@ async function loadGymDetail(){
 }
 
 async function refreshAll(){
-  updateVisibilityForGym();
-  await Promise.all([loadKpis(), loadTimeseries(), loadLeaderboards(), loadGymDetail()]);
-  document.getElementById('updatedAt').textContent = 'Last updated ' + new Date().toLocaleTimeString();
+  if (inFlight) return; // agar pichla refresh abhi tak chal raha ho to nayi call skip — overlap se bachne ke liye
+  inFlight = true;
+  try{
+    updateVisibilityForGym();
+    await Promise.all([loadKpis(), loadTimeseries(), loadLeaderboards(), loadGymDetail()]);
+    document.getElementById('updatedAt').textContent = 'Last updated ' + new Date().toLocaleTimeString();
+  } finally {
+    inFlight = false;
+  }
 }
 
 document.getElementById('rangeGroup').addEventListener('click', e => {
@@ -446,7 +526,8 @@ document.getElementById('gymSelect').addEventListener('change', e => {
 (async function init(){
   await loadGymList();
   await refreshAll();
-  setInterval(async () => { await loadGymList(); await refreshAll(); }, 5 * 60 * 1000);
+  setInterval(refreshAll, 2000);       // har 2 second me poora data silently refresh
+  setInterval(loadGymList, 60 * 1000); // naya gym add hone ki soorat me dropdown har 1 min me sync
 })();
 </script>
 </body>
