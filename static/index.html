@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OutMarket Agency — Gym Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#12151c; --surface:#1a1f29; --surface-2:#212836; --border:#2b3242;
+    --text:#edeae3; --text-dim:#9aa3b2; --gold:#c99a4b; --teal:#4fb286; --rust:#c1583d;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1400px 700px at 10% -10%, #1c2230 0%, transparent 55%), var(--bg);
+    color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh;
+  }
+  .wrap{width:100%; padding:28px clamp(20px, 4vw, 48px) 64px;}
+
+  .topbar{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:26px;}
+  .brand{display:flex; align-items:center; gap:14px;}
+  .logo{height:42px; width:auto; max-width:160px; object-fit:contain; flex-shrink:0;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:8px;animation:pulse 2.4s infinite; flex-shrink:0;}
+  @media (prefers-reduced-motion:reduce){.dot{animation:none;}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,178,134,.55);}70%{box-shadow:0 0 0 8px rgba(79,178,134,0);}100%{box-shadow:0 0 0 0 rgba(79,178,134,0);}}
+  h1{font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;margin:0;}
+  .sub{color:var(--text-dim);font-size:13px;margin:3px 0 0;}
+
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  select, .range-btn, .date-input{
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    font-family:'Inter'; font-size:13px; padding:9px 12px; border-radius:8px; cursor:pointer;
+  }
+  .date-input{cursor:default; color-scheme:dark;}
+  .range-group{display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden;}
+  .range-group .range-btn{border:none; border-radius:0; background:transparent;}
+  .range-group .range-btn.active{background:var(--gold); color:#171310; font-weight:600;}
+  .date-range{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim);}
+  select:focus-visible, .range-btn:focus-visible, .date-input:focus-visible{outline:2px solid var(--gold); outline-offset:1px;}
+
+  .kpis{display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; margin-bottom:22px;}
+  .kpi{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+    opacity:0; transform:translateY(10px); animation:rise .5s ease forwards;
+  }
+  .kpi:nth-child(1){animation-delay:.02s;} .kpi:nth-child(2){animation-delay:.07s;}
+  .kpi:nth-child(3){animation-delay:.12s;} .kpi:nth-child(4){animation-delay:.17s;}
+  .kpi:nth-child(5){animation-delay:.22s;}
+  @keyframes rise{to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion:reduce){.kpi{animation:none; opacity:1; transform:none;}}
+  .kpi .label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;}
+  .kpi .val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:26px; color:var(--gold); margin-top:8px; transition:opacity .25s ease;}
+
+  .panel{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px;
+    margin-bottom:20px; opacity:0; animation:fadeIn .5s ease forwards; animation-delay:.15s;
+  }
+  @keyframes fadeIn{to{opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.panel{animation:none; opacity:1;}}
+  .panel h2{font-family:'Oswald',sans-serif; font-size:16px; margin:0 0 16px; font-weight:600;}
+  .chart-box{position:relative; height:280px;}
+  .chart-box.small{height:230px;}
+  .chart-empty{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;}
+
+  .charts-grid{display:grid; grid-template-columns:1fr 1.4fr; gap:16px; margin-bottom:20px;}
+  @media (max-width:900px){ .charts-grid{grid-template-columns:1fr;} }
+
+  .leader-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-bottom:20px;}
+  .lb-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+    opacity:0; transform:translateY(10px); animation:rise .5s ease forwards;
+  }
+  .lb-card:nth-child(1){animation-delay:.1s;} .lb-card:nth-child(2){animation-delay:.16s;}
+  .lb-card:nth-child(3){animation-delay:.22s;} .lb-card:nth-child(4){animation-delay:.28s;}
+  @media (prefers-reduced-motion:reduce){.lb-card{animation:none; opacity:1; transform:none;}}
+  .lb-card.attention{border-color:rgba(193,88,61,.4);}
+  .lb-card h3{font-family:'Oswald',sans-serif; font-size:14px; margin:0 0 4px; display:flex; align-items:center; gap:6px;}
+  .lb-card .lb-desc{font-size:11px; color:var(--text-dim); margin:0 0 14px;}
+  .lb-row{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border);}
+  .lb-row:last-child{border-bottom:none;}
+  .lb-rank{width:18px; font-family:'IBM Plex Mono'; color:var(--text-dim); font-size:11.5px; flex-shrink:0;}
+  .lb-body{flex:1; min-width:0;}
+  .lb-name{font-size:12.5px; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lb-bar-track{height:5px; border-radius:4px; background:rgba(255,255,255,.06); overflow:hidden;}
+  .lb-bar-fill{height:100%; border-radius:4px; width:0%; transition:width .8s ease;}
+  .lb-val{font-family:'IBM Plex Mono'; font-size:12.5px; font-weight:600; flex-shrink:0; min-width:38px; text-align:right;}
+
+  .detail-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .detail-head h2{font-family:'Oswald',sans-serif; font-size:19px; margin:0;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{text-align:left; color:var(--text-dim); font-weight:600; text-transform:uppercase; font-size:10.5px; letter-spacing:.05em; padding:8px 10px; border-bottom:1px solid var(--border);}
+  td{padding:9px 10px; border-bottom:1px solid rgba(255,255,255,.04);}
+  .pill{display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600;}
+  .pill.yes{background:rgba(79,178,134,.15); color:var(--teal);}
+  .pill.no{background:rgba(193,88,61,.15); color:var(--rust);}
+  .table-scroll{max-height:340px; overflow-y:auto;}
+  .empty{text-align:center; padding:26px; color:var(--text-dim); font-size:13px;}
+
+  footer{text-align:center; margin-top:24px; color:var(--text-dim); font-size:11.5px; font-family:'IBM Plex Mono';}
+
+  @media (max-width: 1000px){ .kpis{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width: 700px){ .grid2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <img class="logo" src="/assets/logo.png" alt="OutMarket Agency" onerror="this.style.display='none'">
+      <span class="dot"></span>
+      <div>
+        <h1>OutMarket Agency</h1>
+        <p class="sub">Lead engagement &amp; booking performance across all locations</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="range-group" id="rangeGroup">
+        <button class="range-btn" data-days="7">7d</button>
+        <button class="range-btn active" data-days="30">30d</button>
+        <button class="range-btn" data-days="90">90d</button>
+        <button class="range-btn" data-days="0">All</button>
+      </div>
+      <div class="date-range">
+        From <input type="date" id="fromDate" class="date-input">
+        To <input type="date" id="toDate" class="date-input">
+      </div>
+      <select id="gymSelect"><option value="all">All Gyms</option></select>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis">
+    <div class="kpi"><div class="label">Total Leads</div><div class="val" id="kLeads">–</div></div>
+    <div class="kpi"><div class="label">Reply Rate</div><div class="val" id="kReplyRate">–</div></div>
+    <div class="kpi"><div class="label">Bookings</div><div class="val" id="kBookings">–</div></div>
+    <div class="kpi"><div class="label">Booking Rate</div><div class="val" id="kBookingRate">–</div></div>
+    <div class="kpi"><div class="label">Avg Reply Time</div><div class="val" id="kAvgReply">–</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Leads &amp; Bookings Over Time</h2>
+    <div class="chart-box"><canvas id="timeChart"></canvas><div class="chart-empty" id="chartEmpty" style="display:none;">No activity in this range yet</div></div>
+  </div>
+
+  <div class="charts-grid" id="overviewCharts">
+    <div class="panel" style="margin-bottom:0;">
+      <h2>Reply Outcome</h2>
+      <div class="chart-box small"><canvas id="donutChart"></canvas><div class="chart-empty" id="donutEmpty" style="display:none;">No leads yet</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:0;">
+      <h2>Lead Share by Gym</h2>
+      <div class="chart-box small"><canvas id="pieChart"></canvas><div class="chart-empty" id="pieEmpty" style="display:none;">No data yet</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="snapshotPanel">
+    <h2>All Gyms Snapshot</h2>
+    <div class="table-scroll" style="max-height:260px;">
+      <table><thead><tr><th>Gym</th><th>Leads</th><th>Reply Rate</th><th>Bookings</th></tr></thead>
+      <tbody id="allGymsBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="leader-grid" id="leaderGrid">
+    <div class="lb-card">
+      <h3>🏆 Top 5 — Leads</h3>
+      <p class="lb-desc">Most inbound leads in range</p>
+      <div id="lbLeads"></div>
+    </div>
+    <div class="lb-card">
+      <h3>📅 Top 5 — Bookings</h3>
+      <p class="lb-desc">Most confirmed bookings in range</p>
+      <div id="lbBookings"></div>
+    </div>
+    <div class="lb-card">
+      <h3>💬 Top 5 — Reply Rate</h3>
+      <p class="lb-desc">Best engagement, min. 1 lead</p>
+      <div id="lbReply"></div>
+    </div>
+    <div class="lb-card attention">
+      <h3>⚠️ Needs Attention</h3>
+      <p class="lb-desc">Lowest reply rate, min. 1 lead</p>
+      <div id="lbLow"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="detailPanel" style="display:none;">
+    <div class="detail-head">
+      <h2 id="detailTitle">Gym Detail</h2>
+      <span class="sub" id="detailSummary"></span>
+    </div>
+    <div class="grid2">
+      <div>
+        <h2 style="font-size:13px;">Leads</h2>
+        <div class="table-scroll">
+          <table><thead><tr><th>Lead</th><th>Sent</th><th>Replied</th><th>Reply Date</th></tr></thead>
+          <tbody id="leadsBody"></tbody></table>
+        </div>
+      </div>
+      <div>
+        <h2 style="font-size:13px;">Bookings</h2>
+        <div class="table-scroll">
+          <table><thead><tr><th>Lead</th><th>Booking Date</th></tr></thead>
+          <tbody id="bookingsBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="updatedAt">—</footer>
+</div>
+
+<script>
+const API = "";
+let timeChart=null, pieChart=null, donutChart=null;
+let currentDays = 30;
+let currentGym = "all";
+let customRange = null;
+
+const PALETTE = ['#4fb286','#c99a4b','#6a9fd8','#c1583d','#9b7ed4','#5ec3c9','#d488b0','#8bb04a','#e0a848'];
+
+function fmtDate(iso){
+  if(!iso) return "—";
+  return new Date(iso).toLocaleString([], {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+}
+function qs(params){ const p = new URLSearchParams(params); return p.toString() ? '?' + p.toString() : ''; }
+
+function dateRangeParams(){
+  if (customRange) return customRange;
+  if (currentDays === 0) return {};
+  const end = new Date(Date.now() + 24*60*60*1000);
+  const start = new Date(end.getTime() - (currentDays+1)*24*60*60*1000);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+function fadeSwap(el, text){
+  el.style.opacity = 0;
+  setTimeout(() => { el.textContent = text; el.style.opacity = 1; }, 150);
+}
+
+function updateVisibilityForGym(){
+  const isAll = currentGym === 'all';
+  document.getElementById('overviewCharts').style.display = isAll ? 'grid' : 'none';
+  document.getElementById('snapshotPanel').style.display = isAll ? 'block' : 'none';
+  document.getElementById('leaderGrid').style.display = isAll ? 'grid' : 'none';
+}
+
+async function loadGymList(){
+  const gyms = await fetch(API + '/api/gyms').then(r => r.json());
+  const sel = document.getElementById('gymSelect');
+  sel.querySelectorAll('option:not(:first-child)').forEach(o => o.remove());
+  gyms.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g; opt.textContent = g;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadKpis(){
+  const params = { gym: currentGym, ...dateRangeParams() };
+  const d = await fetch(API + '/api/kpis' + qs(params)).then(r => r.json());
+  fadeSwap(document.getElementById('kLeads'), d.total_leads);
+  fadeSwap(document.getElementById('kReplyRate'), d.reply_rate + '%');
+  fadeSwap(document.getElementById('kBookings'), d.total_bookings);
+  fadeSwap(document.getElementById('kBookingRate'), d.booking_rate + '%');
+  fadeSwap(document.getElementById('kAvgReply'), d.avg_reply_hours != null ? d.avg_reply_hours + 'h' : '—');
+
+  if (currentGym !== 'all') return; // donut only shown in "All Gyms" view
+
+  const canvas = document.getElementById('donutChart');
+  const emptyEl = document.getElementById('donutEmpty');
+  if (!d.total_leads){
+    if (donutChart){ donutChart.destroy(); donutChart=null; }
+    canvas.style.display='none'; emptyEl.style.display='flex';
+    return;
+  }
+  canvas.style.display='block'; emptyEl.style.display='none';
+  const notReplied = d.total_leads - d.total_replied;
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(canvas, {
+    type:'doughnut',
+    data:{ labels:['Replied','No Reply'], datasets:[{ data:[d.total_replied, notReplied], backgroundColor:['#4fb286','#c1583d'], borderColor:'#1a1f29', borderWidth:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
+      plugins:{ legend:{ position:'bottom', labels:{ color:'#9aa3b2', font:{size:11} } } } }
+  });
+}
+
+async function loadTimeseries(){
+  const params = { gym: currentGym, ...dateRangeParams() };
+  const rows = await fetch(API + '/api/timeseries' + qs(params)).then(r => r.json());
+  const emptyEl = document.getElementById('chartEmpty');
+  const canvas = document.getElementById('timeChart');
+
+  if (!rows.length){
+    if (timeChart) { timeChart.destroy(); timeChart = null; }
+    canvas.style.display = 'none'; emptyEl.style.display = 'flex';
+    return;
+  }
+  canvas.style.display = 'block'; emptyEl.style.display = 'none';
+
+  const labels = rows.map(r => r.date);
+  const leads = rows.map(r => r.leads);
+  const bookings = rows.map(r => r.bookings);
+
+  if (timeChart) timeChart.destroy();
+  timeChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'Leads', data:leads, borderColor:'#4fb286', backgroundColor:'rgba(79,178,134,.15)', tension:.35, fill:true, pointRadius:3 },
+      { label:'Bookings', data:bookings, borderColor:'#c99a4b', backgroundColor:'rgba(201,154,75,.15)', tension:.35, fill:true, pointRadius:3 }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
+      plugins:{ legend:{ labels:{ color:'#9aa3b2', font:{size:11} } } },
+      scales:{ x:{ ticks:{ color:'#9aa3b2', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' } },
+                y:{ ticks:{ color:'#9aa3b2', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' }, beginAtZero:true } } }
+  });
+}
+
+async function loadPieChart(allGyms){
+  const pieCanvas = document.getElementById('pieChart'), pieEmpty = document.getElementById('pieEmpty');
+  if (!allGyms.length){
+    if (pieChart){ pieChart.destroy(); pieChart=null; }
+    pieCanvas.style.display='none'; pieEmpty.style.display='flex';
+    return;
+  }
+  pieCanvas.style.display='block'; pieEmpty.style.display='none';
+  const labels = allGyms.map(g => g.gym_name);
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(pieCanvas, {
+    type:'pie',
+    data:{ labels, datasets:[{ data:allGyms.map(g=>g.leads), backgroundColor:PALETTE, borderColor:'#1a1f29', borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{ duration:700, easing:'easeOutQuart' },
+      plugins:{ legend:{ position:'right', labels:{ color:'#9aa3b2', font:{size:10}, boxWidth:12 } } } }
+  });
+}
+
+function renderLbCard(containerId, rows, valueKey, color, isPercent){
+  const el = document.getElementById(containerId);
+  if (!rows.length){ el.innerHTML = '<div class="empty" style="padding:10px 0;">No data yet</div>'; return; }
+  const max = Math.max(...rows.map(r => r[valueKey])) || 1;
+  el.innerHTML = rows.map((g,i) => {
+    const val = isPercent ? g[valueKey] + '%' : g[valueKey];
+    const pct = Math.max(6, (g[valueKey]/max)*100);
+    return `<div class="lb-row">
+      <span class="lb-rank">${i+1}</span>
+      <div class="lb-body">
+        <div class="lb-name">${g.gym_name}</div>
+        <div class="lb-bar-track"><div class="lb-bar-fill" style="width:0%;background:${color};" data-w="${pct}"></div></div>
+      </div>
+      <span class="lb-val" style="color:${color};">${val}</span>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(() => {
+    el.querySelectorAll('.lb-bar-fill').forEach(bar => { bar.style.width = bar.dataset.w + '%'; });
+  });
+}
+
+function renderAllGymsTable(allGyms){
+  const body = document.getElementById('allGymsBody');
+  if (!allGyms.length){ body.innerHTML = '<tr><td colspan="4" class="empty">No gyms yet</td></tr>'; return; }
+  body.innerHTML = allGyms.map(g => `
+    <tr><td>${g.gym_name}</td><td>${g.leads}</td><td>${g.reply_rate}%</td><td>${g.bookings}</td></tr>
+  `).join('');
+}
+
+async function loadLeaderboards(){
+  if (currentGym !== 'all') return; // these compare across gyms, irrelevant for single-gym view
+  const base = dateRangeParams();
+  const [leads, bookings, reply, low, allGyms] = await Promise.all([
+    fetch(API + '/api/leaderboard' + qs({metric:'leads', limit:5, order:'desc', ...base})).then(r=>r.json()),
+    fetch(API + '/api/leaderboard' + qs({metric:'bookings', limit:5, order:'desc', ...base})).then(r=>r.json()),
+    fetch(API + '/api/leaderboard' + qs({metric:'reply_rate', limit:5, order:'desc', min_leads:1, ...base})).then(r=>r.json()),
+    fetch(API + '/api/leaderboard' + qs({metric:'reply_rate', limit:5, order:'asc', min_leads:1, ...base})).then(r=>r.json()),
+    fetch(API + '/api/leaderboard' + qs({metric:'leads', limit:50, order:'desc', ...base})).then(r=>r.json()),
+  ]);
+  renderLbCard('lbLeads', leads, 'leads', '#4fb286', false);
+  renderLbCard('lbBookings', bookings, 'bookings', '#c99a4b', false);
+  renderLbCard('lbReply', reply, 'reply_rate', '#4fb286', true);
+  renderLbCard('lbLow', low, 'reply_rate', '#c1583d', true);
+  renderAllGymsTable(allGyms);
+  await loadPieChart(allGyms);
+}
+
+async function loadGymDetail(){
+  const panel = document.getElementById('detailPanel');
+  if (currentGym === 'all'){ panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+
+  const params = { gym: currentGym, ...dateRangeParams() };
+  const d = await fetch(API + '/api/gym-detail' + qs(params)).then(r => r.json());
+
+  document.getElementById('detailTitle').textContent = currentGym;
+  document.getElementById('detailSummary').textContent =
+    `${d.summary.total_leads} leads · ${d.summary.reply_rate}% replied · ${d.summary.total_bookings} bookings`;
+
+  document.getElementById('leadsBody').innerHTML = d.leads.length ? d.leads.map(l => `
+    <tr><td>${l.lead_name || '—'}</td><td>${fmtDate(l.initial_sent_date)}</td>
+    <td><span class="pill ${l.replied ? 'yes' : 'no'}">${l.replied ? 'Yes' : 'No'}</span></td>
+    <td>${fmtDate(l.reply_date)}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">No leads in this range</td></tr>';
+
+  document.getElementById('bookingsBody').innerHTML = d.bookings.length ? d.bookings.map(b => `
+    <tr><td>${b.lead_name || '—'}</td><td>${fmtDate(b.booking_date)}</td></tr>`).join('')
+    : '<tr><td colspan="2" class="empty">No bookings in this range</td></tr>';
+}
+
+async function refreshAll(){
+  updateVisibilityForGym();
+  await Promise.all([loadKpis(), loadTimeseries(), loadLeaderboards(), loadGymDetail()]);
+  document.getElementById('updatedAt').textContent = 'Last updated ' + new Date().toLocaleTimeString();
+}
+
+document.getElementById('rangeGroup').addEventListener('click', e => {
+  if (!e.target.dataset.days) return;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  currentDays = parseInt(e.target.dataset.days);
+  customRange = null;
+  document.getElementById('fromDate').value = '';
+  document.getElementById('toDate').value = '';
+  refreshAll();
+});
+
+function applyCustomRange(){
+  const from = document.getElementById('fromDate').value;
+  const to = document.getElementById('toDate').value;
+  if (!from || !to) return;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  const start = new Date(from + 'T00:00:00');
+  const end = new Date(to + 'T23:59:59');
+  customRange = { start: start.toISOString(), end: end.toISOString() };
+  refreshAll();
+}
+document.getElementById('fromDate').addEventListener('change', applyCustomRange);
+document.getElementById('toDate').addEventListener('change', applyCustomRange);
+
+document.getElementById('gymSelect').addEventListener('change', e => {
+  currentGym = e.target.value;
+  refreshAll();
+});
+
+(async function init(){
+  await loadGymList();
+  await refreshAll();
+  setInterval(async () => { await loadGymList(); await refreshAll(); }, 5 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
