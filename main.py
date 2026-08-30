@@ -1,7 +1,7 @@
 """
 Gym Outreach Dashboard — Backend
 """
-#D:\dashboard-app\main.py
+
 import os
 import time
 from datetime import datetime
@@ -42,8 +42,6 @@ def parse_ts(value):
 
 
 def safe_execute(query, retries=3):
-    """Runs a Supabase query with retries — the connection to Supabase can
-    occasionally drop mid-request, this retries a couple of times before failing."""
     last_error = None
     for attempt in range(retries):
         try:
@@ -72,6 +70,40 @@ def fetch_bookings(gym=None, start=None, end=None):
     return [r for r in rows if not is_test_row(r.get("gym_name"), r.get("lead_name"))]
 
 
+def merge_leads(replies, bookings):
+    """
+    Combines both tables into one list of unique leads per (gym_name, contact_id).
+    A person counts as a 'lead' if they exist in EITHER table — replies (message
+    tracking) or bookings (in case they booked before this tracking system existed,
+    or their reply was never logged).
+    """
+    merged = {}
+    for r in replies:
+        key = (r["gym_name"], r["contact_id"])
+        merged[key] = {
+            "gym_name": r["gym_name"],
+            "lead_name": r.get("lead_name"),
+            "contact_id": r["contact_id"],
+            "initial_sent_date": r.get("initial_sent_date"),
+            "replied": r.get("replied", False),
+            "reply_date": r.get("reply_date"),
+            "tracked": True,  # went through reply-tracking
+        }
+    for b in bookings:
+        key = (b["gym_name"], b["contact_id"])
+        if key not in merged:
+            merged[key] = {
+                "gym_name": b["gym_name"],
+                "lead_name": b.get("lead_name"),
+                "contact_id": b["contact_id"],
+                "initial_sent_date": None,
+                "replied": None,  # unknown — never went through reply-tracking
+                "reply_date": None,
+                "tracked": False,
+            }
+    return list(merged.values())
+
+
 @app.get("/api/gyms")
 def list_gyms():
     replies = fetch_replies()
@@ -84,12 +116,16 @@ def list_gyms():
 def kpis(gym: str = Query("all"), start: str = None, end: str = None):
     replies = fetch_replies(gym, start, end)
     bookings = fetch_bookings(gym, start, end)
+    all_leads = merge_leads(replies, bookings)
 
-    total_leads = len(replies)
-    total_replied = sum(1 for r in replies if r.get("replied"))
-    reply_rate = round(total_replied / total_leads * 100, 1) if total_leads else 0
+    total_leads = len(all_leads)
     total_bookings = len(bookings)
     booking_rate = round(total_bookings / total_leads * 100, 1) if total_leads else 0
+
+    # Reply rate is only meaningful for leads that actually went through message tracking
+    tracked_count = len(replies)
+    total_replied = sum(1 for r in replies if r.get("replied"))
+    reply_rate = round(total_replied / tracked_count * 100, 1) if tracked_count else 0
 
     reply_times = []
     for r in replies:
@@ -100,8 +136,13 @@ def kpis(gym: str = Query("all"), start: str = None, end: str = None):
     avg_reply_hours = round(sum(reply_times) / len(reply_times), 1) if reply_times else None
 
     return {
-        "total_leads": total_leads, "total_replied": total_replied, "reply_rate": reply_rate,
-        "total_bookings": total_bookings, "booking_rate": booking_rate, "avg_reply_hours": avg_reply_hours,
+        "total_leads": total_leads,
+        "tracked_leads": tracked_count,
+        "total_replied": total_replied,
+        "reply_rate": reply_rate,
+        "total_bookings": total_bookings,
+        "booking_rate": booking_rate,
+        "avg_reply_hours": avg_reply_hours,
     }
 
 
@@ -110,11 +151,14 @@ def leaderboard(metric: str = "leads", limit: int = 5, order: str = "desc",
                  min_leads: int = 0, start: str = None, end: str = None):
     replies = fetch_replies(None, start, end)
     bookings = fetch_bookings(None, start, end)
+    all_leads = merge_leads(replies, bookings)
 
-    gym_map = defaultdict(lambda: {"leads": 0, "replied": 0, "bookings": 0})
+    gym_map = defaultdict(lambda: {"leads": 0, "tracked": 0, "replied": 0, "bookings": 0})
+    for l in all_leads:
+        gym_map[l["gym_name"]]["leads"] += 1
     for r in replies:
         g = gym_map[r["gym_name"]]
-        g["leads"] += 1
+        g["tracked"] += 1
         if r.get("replied"): g["replied"] += 1
     for b in bookings:
         gym_map[b["gym_name"]]["bookings"] += 1
@@ -123,7 +167,7 @@ def leaderboard(metric: str = "leads", limit: int = 5, order: str = "desc",
     for name, v in gym_map.items():
         if v["leads"] < min_leads:
             continue
-        rate = round(v["replied"] / v["leads"] * 100, 1) if v["leads"] else 0
+        rate = round(v["replied"] / v["tracked"] * 100, 1) if v["tracked"] else 0
         out.append({"gym_name": name, "leads": v["leads"], "replied": v["replied"],
                      "reply_rate": rate, "bookings": v["bookings"]})
 
@@ -136,17 +180,23 @@ def leaderboard(metric: str = "leads", limit: int = 5, order: str = "desc",
 def gym_detail(gym: str, start: str = None, end: str = None):
     replies = fetch_replies(gym, start, end)
     bookings = fetch_bookings(gym, start, end)
-    replies.sort(key=lambda r: r.get("initial_sent_date") or "", reverse=True)
+    all_leads = merge_leads(replies, bookings)
+    all_leads.sort(key=lambda l: l.get("initial_sent_date") or "", reverse=True)
     bookings.sort(key=lambda b: b.get("booking_date") or "", reverse=True)
 
-    total_leads = len(replies)
+    tracked_count = len(replies)
     total_replied = sum(1 for r in replies if r.get("replied"))
-    reply_rate = round(total_replied / total_leads * 100, 1) if total_leads else 0
+    reply_rate = round(total_replied / tracked_count * 100, 1) if tracked_count else 0
 
     return {
-        "summary": {"total_leads": total_leads, "total_replied": total_replied,
-                     "reply_rate": reply_rate, "total_bookings": len(bookings)},
-        "leads": replies, "bookings": bookings,
+        "summary": {
+            "total_leads": len(all_leads),
+            "tracked_leads": tracked_count,
+            "total_replied": total_replied,
+            "reply_rate": reply_rate,
+            "total_bookings": len(bookings),
+        },
+        "leads": all_leads, "bookings": bookings,
     }
 
 

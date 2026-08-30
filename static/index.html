@@ -24,7 +24,7 @@
 
   .topbar{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:26px;}
   .brand{display:flex; align-items:center; gap:16px;}
-  .logo{height:100px; width:auto; max-width:320px; object-fit:contain; flex-shrink:0;}
+  .logo{height:80px; width:auto; max-width:280px; object-fit:contain; flex-shrink:0;}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:8px;animation:pulse 2.4s infinite; flex-shrink:0;}
   @media (prefers-reduced-motion:reduce){.dot{animation:none;}}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,178,134,.55);}70%{box-shadow:0 0 0 8px rgba(79,178,134,0);}100%{box-shadow:0 0 0 0 rgba(79,178,134,0);}}
@@ -43,29 +43,29 @@
   .date-range{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim);}
   select:focus-visible, .range-btn:focus-visible, .date-input:focus-visible{outline:2px solid var(--gold); outline-offset:1px;}
 
-  /* KPI cards — each with its own accent color (top bar + value) */
-  .kpis{display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; margin-bottom:22px;}
+  .kpis{display:grid; grid-template-columns:repeat(7, 1fr); gap:12px; margin-bottom:22px;}
   .kpi{
     background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent, var(--gold));
-    border-radius:var(--radius); padding:18px; position:relative; overflow:hidden;
+    border-radius:var(--radius); padding:16px 14px; position:relative; overflow:hidden;
     opacity:0; transform:translateY(10px); animation:rise .5s ease forwards;
     transition:transform .2s ease, box-shadow .2s ease;
   }
   .kpi:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.28); }
   .kpi:nth-child(1){animation-delay:.02s; --accent:var(--teal);}
-  .kpi:nth-child(2){animation-delay:.07s; --accent:var(--gold);}
-  .kpi:nth-child(3){animation-delay:.12s; --accent:var(--blue);}
-  .kpi:nth-child(4){animation-delay:.17s; --accent:var(--purple);}
-  .kpi:nth-child(5){animation-delay:.22s; --accent:#e0a848;}
+  .kpi:nth-child(2){animation-delay:.05s; --accent:#5ec3c9;}
+  .kpi:nth-child(3){animation-delay:.08s; --accent:var(--blue);}
+  .kpi:nth-child(4){animation-delay:.11s; --accent:var(--gold);}
+  .kpi:nth-child(5){animation-delay:.14s; --accent:var(--purple);}
+  .kpi:nth-child(6){animation-delay:.17s; --accent:#d488b0;}
+  .kpi:nth-child(7){animation-delay:.20s; --accent:#e0a848;}
   @keyframes rise{to{opacity:1; transform:none;}}
   @media (prefers-reduced-motion:reduce){.kpi{animation:none; opacity:1; transform:none;}}
-  .kpi .label{font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;}
-  .kpi .val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:26px; color:var(--accent, var(--gold)); margin-top:8px;}
+  .kpi .label{font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+  .kpi .val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:22px; color:var(--accent, var(--gold)); margin-top:8px;}
   .kpi .icon-glow{ position:absolute; top:-10px; right:-10px; width:70px; height:70px; border-radius:50%;
     background:var(--accent, var(--gold)); opacity:.08; filter:blur(6px); }
 
-  /* mini KPI row used inside gym-detail */
-  .mini-kpis{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:22px;}
+  .mini-kpis{display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-bottom:22px;}
   .mini-kpi{
     background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
     border-left:3px solid var(--accent, var(--gold));
@@ -79,7 +79,8 @@
   }
   @keyframes fadeIn{to{opacity:1;}}
   @media (prefers-reduced-motion:reduce){.panel{animation:none; opacity:1;}}
-  .panel h2{font-family:'Oswald',sans-serif; font-size:16px; margin:0 0 16px; font-weight:600;}
+  .panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;}
+  .panel h2{font-family:'Oswald',sans-serif; font-size:16px; margin:0; font-weight:600;}
   .chart-box{position:relative; height:280px;}
   .chart-box.small{height:230px;}
   .chart-empty{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;}
@@ -107,7 +108,6 @@
   .lb-bar-fill{height:100%; border-radius:4px; width:0%; transition:width .5s ease;}
   .lb-val{font-family:'IBM Plex Mono'; font-size:12.5px; font-weight:600; flex-shrink:0; min-width:38px; text-align:right;}
 
-  /* gym detail — modern styling */
   #detailPanel{background:linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);}
   .detail-head{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; flex-wrap:wrap; gap:8px;}
   .detail-head h2{font-family:'Oswald',sans-serif; font-size:22px; margin:0; display:flex; align-items:center; gap:8px;}
@@ -122,13 +122,14 @@
   .pill{display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600;}
   .pill.yes{background:rgba(79,178,134,.15); color:var(--teal);}
   .pill.no{background:rgba(193,88,61,.15); color:var(--rust);}
+  .pill.unknown{background:rgba(154,163,178,.15); color:var(--text-dim);}
   .table-scroll{max-height:340px; overflow-y:auto;}
   .empty{text-align:center; padding:26px; color:var(--text-dim); font-size:13px;}
 
   footer{text-align:center; margin-top:24px; color:var(--text-dim); font-size:11.5px; font-family:'IBM Plex Mono';}
 
-  @media (max-width: 1000px){ .kpis{grid-template-columns:repeat(2,1fr);} .mini-kpis{grid-template-columns:1fr;} }
-  @media (max-width: 700px){ .grid2{grid-template-columns:1fr;} }
+  @media (max-width: 1200px){ .kpis{grid-template-columns:repeat(4,1fr);} }
+  @media (max-width: 700px){ .kpis{grid-template-columns:repeat(2,1fr);} .mini-kpis{grid-template-columns:repeat(2,1fr);} .grid2{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -160,6 +161,8 @@
 
   <div class="kpis" id="kpis">
     <div class="kpi"><div class="icon-glow"></div><div class="label">Total Leads</div><div class="val" id="kLeads">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Messaged</div><div class="val" id="kMessaged">–</div></div>
+    <div class="kpi"><div class="icon-glow"></div><div class="label">Replied</div><div class="val" id="kReplied">–</div></div>
     <div class="kpi"><div class="icon-glow"></div><div class="label">Reply Rate</div><div class="val" id="kReplyRate">–</div></div>
     <div class="kpi"><div class="icon-glow"></div><div class="label">Bookings</div><div class="val" id="kBookings">–</div></div>
     <div class="kpi"><div class="icon-glow"></div><div class="label">Booking Rate</div><div class="val" id="kBookingRate">–</div></div>
@@ -167,7 +170,16 @@
   </div>
 
   <div class="panel">
-    <h2>Leads &amp; Bookings Over Time</h2>
+    <div class="panel-head">
+      <h2>Leads &amp; Bookings Over Time</h2>
+      <select id="granularitySelect">
+        <option value="auto">Auto</option>
+        <option value="day">Daily</option>
+        <option value="week">Weekly</option>
+        <option value="month">Monthly</option>
+        <option value="year">Yearly</option>
+      </select>
+    </div>
     <div class="chart-box"><canvas id="timeChart"></canvas><div class="chart-empty" id="chartEmpty" style="display:none;">No activity in this range yet</div></div>
   </div>
 
@@ -248,7 +260,9 @@ let timeChart=null, pieChart=null, donutChart=null;
 let currentDays = 30;
 let currentGym = "all";
 let customRange = null;
-let inFlight = false; // prevents overlapping polls if a fetch is slow
+let inFlight = false;
+let lastLabelsKey = null;
+let lastGymView = null;
 
 const PALETTE = ['#4fb286','#c99a4b','#6a9fd8','#c1583d','#9b7ed4','#5ec3c9','#d488b0','#8bb04a','#e0a848'];
 
@@ -266,12 +280,10 @@ function dateRangeParams(){
   return { start: start.toISOString(), end: end.toISOString() };
 }
 
-// Directly swaps text — no fade/flicker, value just changes in place
 function setText(el, text){
   if (el.textContent !== String(text)) el.textContent = text;
 }
 
-// Returns a "nice" axis step (1, 2, 5, 10, 20, 50...) so ticks never show decimals
 function niceStep(maxVal){
   if (maxVal <= 5) return 1;
   if (maxVal <= 10) return 2;
@@ -281,7 +293,61 @@ function niceStep(maxVal){
   return Math.ceil(maxVal / 50) * 10;
 }
 
+/* ---------- date-bucketing helpers for the trend chart ---------- */
+
+function isoWeekStart(d){
+  const day = (d.getDay() + 6) % 7; // 0 = Monday
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - day);
+  return monday;
+}
+
+function bucketKey(dateStr, granularity){
+  const d = new Date(dateStr + 'T00:00:00');
+  if (granularity === 'week') return isoWeekStart(d).toISOString().slice(0,10);
+  if (granularity === 'month') return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  if (granularity === 'year') return String(d.getFullYear());
+  return dateStr;
+}
+
+function bucketLabel(key, granularity){
+  if (granularity === 'week'){
+    const d = new Date(key + 'T00:00:00');
+    return 'Wk of ' + d.toLocaleDateString([], {day:'2-digit', month:'short'});
+  }
+  if (granularity === 'month'){
+    const [y,m] = key.split('-');
+    return new Date(y, m-1, 1).toLocaleDateString([], {month:'short', year:'numeric'});
+  }
+  if (granularity === 'year') return key;
+  return new Date(key + 'T00:00:00').toLocaleDateString([], {day:'2-digit', month:'short'});
+}
+
+function pickAutoGranularity(spanDays){
+  if (spanDays <= 31) return 'day';
+  if (spanDays <= 180) return 'week';
+  if (spanDays <= 730) return 'month';
+  return 'year';
+}
+
+function aggregateRows(rows, granularity){
+  if (granularity === 'day') return rows.map(r => ({ _key:r.date, leads:r.leads, bookings:r.bookings }));
+  const buckets = new Map();
+  rows.forEach(r => {
+    const key = bucketKey(r.date, granularity);
+    if (!buckets.has(key)) buckets.set(key, { _key:key, leads:0, bookings:0 });
+    const b = buckets.get(key);
+    b.leads += r.leads;
+    b.bookings += r.bookings;
+  });
+  return Array.from(buckets.values()).sort((a,b) => a._key.localeCompare(b._key));
+}
+
+/* ---------- visibility toggling for single-gym view ---------- */
+
 function updateVisibilityForGym(){
+  if (lastGymView === currentGym) return;
+  lastGymView = currentGym;
   const isAll = currentGym === 'all';
   document.getElementById('overviewCharts').style.display = isAll ? 'grid' : 'none';
   document.getElementById('snapshotPanel').style.display = isAll ? 'block' : 'none';
@@ -292,7 +358,6 @@ async function loadGymList(){
   const gyms = await fetch(API + '/api/gyms').then(r => r.json());
   const sel = document.getElementById('gymSelect');
   const existing = Array.from(sel.querySelectorAll('option:not(:first-child)')).map(o => o.value);
-  // only touch the DOM if the gym list actually changed — avoids resetting an open dropdown
   const changed = existing.length !== gyms.length || existing.some((v, i) => v !== gyms[i]);
   if (!changed) return;
   const prevValue = sel.value;
@@ -309,6 +374,8 @@ async function loadKpis(){
   const params = { gym: currentGym, ...dateRangeParams() };
   const d = await fetch(API + '/api/kpis' + qs(params)).then(r => r.json());
   setText(document.getElementById('kLeads'), d.total_leads);
+  setText(document.getElementById('kMessaged'), d.tracked_leads);
+  setText(document.getElementById('kReplied'), d.total_replied);
   setText(document.getElementById('kReplyRate'), d.reply_rate + '%');
   setText(document.getElementById('kBookings'), d.total_bookings);
   setText(document.getElementById('kBookingRate'), d.booking_rate + '%');
@@ -318,13 +385,13 @@ async function loadKpis(){
 
   const canvas = document.getElementById('donutChart');
   const emptyEl = document.getElementById('donutEmpty');
-  if (!d.total_leads){
+  if (!d.tracked_leads){
     if (donutChart){ donutChart.destroy(); donutChart=null; }
     canvas.style.display='none'; emptyEl.style.display='flex';
     return;
   }
   canvas.style.display='block'; emptyEl.style.display='none';
-  const notReplied = d.total_leads - d.total_replied;
+  const notReplied = d.tracked_leads - d.total_replied;
 
   if (!donutChart){
     donutChart = new Chart(canvas, {
@@ -335,7 +402,7 @@ async function loadKpis(){
     });
   } else {
     donutChart.data.datasets[0].data = [d.total_replied, notReplied];
-    donutChart.update('none'); // 'none' = no re-animation, just snaps to new values — feels instant, not "loading"
+    donutChart.update('none');
   }
 }
 
@@ -347,40 +414,56 @@ async function loadTimeseries(){
 
   if (!rows.length){
     if (timeChart) { timeChart.destroy(); timeChart = null; }
+    lastLabelsKey = null;
     canvas.style.display = 'none'; emptyEl.style.display = 'flex';
     return;
   }
   canvas.style.display = 'block'; emptyEl.style.display = 'none';
 
-  const labels = rows.map(r => r.date);
-  const leads = rows.map(r => r.leads);
-  const bookings = rows.map(r => r.bookings);
+  const firstDate = new Date(rows[0].date + 'T00:00:00');
+  const lastDate = new Date(rows[rows.length-1].date + 'T00:00:00');
+  const spanDays = Math.max(1, Math.round((lastDate - firstDate) / 86400000));
+
+  const chosen = document.getElementById('granularitySelect').value;
+  const granularity = chosen === 'auto' ? pickAutoGranularity(spanDays) : chosen;
+
+  const grouped = aggregateRows(rows, granularity);
+  const labels = grouped.map(r => bucketLabel(r._key, granularity));
+  const leads = grouped.map(r => r.leads);
+  const bookings = grouped.map(r => r.bookings);
   const maxVal = Math.max(...leads, ...bookings, 1);
   const step = niceStep(maxVal);
   const suggestedMax = Math.ceil(maxVal / step) * step + step;
 
-  if (!timeChart){
-    timeChart = new Chart(canvas, {
-      type: 'line',
-      data: { labels, datasets: [
-        { label:'Leads', data:leads, borderColor:'#4fb286', backgroundColor:'rgba(79,178,134,.15)', tension:.35, fill:true, pointRadius:4, pointBackgroundColor:'#4fb286' },
-        { label:'Bookings', data:bookings, borderColor:'#c99a4b', backgroundColor:'rgba(201,154,75,.15)', tension:.35, fill:true, pointRadius:4, pointBackgroundColor:'#c99a4b' }
-      ]},
-      options: { responsive:true, maintainAspectRatio:false, animation:{ duration:600, easing:'easeOutQuart' },
-        plugins:{ legend:{ labels:{ color:'#9aa3b2', font:{size:11} } } },
-        scales:{
-          x:{ ticks:{ color:'#9aa3b2', font:{size:10} }, grid:{ color:'rgba(255,255,255,.04)' } },
-          y:{ beginAtZero:true, suggestedMax, ticks:{ color:'#9aa3b2', font:{size:10}, stepSize: step, precision:0 }, grid:{ color:'rgba(255,255,255,.04)' } }
-        } }
-    });
-  } else {
-    timeChart.data.labels = labels;
+  // Only rebuild the chart when its "shape" (granularity + labels) actually changes.
+  // On a plain data refresh (same shape), update values in place with no animation
+  // so the chart doesn't flash/blink every refresh cycle.
+  const labelsKey = granularity + '|' + labels.join(',');
+
+  if (timeChart && labelsKey === lastLabelsKey){
     timeChart.data.datasets[0].data = leads;
     timeChart.data.datasets[1].data = bookings;
     timeChart.options.scales.y.suggestedMax = suggestedMax;
     timeChart.options.scales.y.ticks.stepSize = step;
-    timeChart.update('none'); // instant update, no flicker/redraw animation
+    timeChart.update('none');
+    return;
   }
+
+  if (timeChart) timeChart.destroy(); // label shape changed — rebuild is safest
+  lastLabelsKey = labelsKey;
+  timeChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'Leads', data:leads, borderColor:'#4fb286', backgroundColor:'rgba(79,178,134,.15)', tension:0, fill:true, pointRadius:4, pointBackgroundColor:'#4fb286' },
+      { label:'Bookings', data:bookings, borderColor:'#c99a4b', backgroundColor:'rgba(201,154,75,.15)', tension:0, fill:true, pointRadius:4, pointBackgroundColor:'#c99a4b' }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, animation:{ duration:0 },
+      plugins:{ legend:{ labels:{ color:'#9aa3b2', font:{size:11} } } },
+      scales:{
+        x:{ ticks:{ color:'#9aa3b2', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:12 }, grid:{ color:'rgba(255,255,255,.04)' } },
+        y:{ beginAtZero:true, suggestedMax, ticks:{ color:'#9aa3b2', font:{size:10}, stepSize: step, precision:0 }, grid:{ color:'rgba(255,255,255,.04)' } }
+      } }
+  });
 }
 
 async function loadPieChart(allGyms){
@@ -462,20 +545,26 @@ async function loadGymDetail(){
 
   document.getElementById('detailTitle').textContent = currentGym;
   document.getElementById('detailHint').textContent =
-    d.summary.total_leads === 0
+    d.summary.tracked_leads === 0
       ? 'No reply-tracking data recorded for this gym yet in this date range — bookings (if any) are shown below.'
       : 'Full breakdown for this location, filtered to the selected date range.';
 
   document.getElementById('miniKpis').innerHTML = `
     <div class="mini-kpi" style="--accent:#4fb286;"><div class="label">Total Leads</div><div class="val">${d.summary.total_leads}</div></div>
+    <div class="mini-kpi" style="--accent:#5ec3c9;"><div class="label">Messaged</div><div class="val">${d.summary.tracked_leads}</div></div>
+    <div class="mini-kpi" style="--accent:#4fb286;"><div class="label">Replied</div><div class="val">${d.summary.total_replied}</div></div>
     <div class="mini-kpi" style="--accent:#c99a4b;"><div class="label">Reply Rate</div><div class="val">${d.summary.reply_rate}%</div></div>
     <div class="mini-kpi" style="--accent:#6a9fd8;"><div class="label">Bookings</div><div class="val">${d.summary.total_bookings}</div></div>
   `;
 
-  document.getElementById('leadsBody').innerHTML = d.leads.length ? d.leads.map(l => `
-    <tr><td>${l.lead_name || '—'}</td><td>${fmtDate(l.initial_sent_date)}</td>
-    <td><span class="pill ${l.replied ? 'yes' : 'no'}">${l.replied ? 'Yes' : 'No'}</span></td>
-    <td>${fmtDate(l.reply_date)}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">No leads in this range</td></tr>';
+  document.getElementById('leadsBody').innerHTML = d.leads.length ? d.leads.map(l => {
+    let pillClass = 'unknown', pillText = '—';
+    if (l.replied === true) { pillClass = 'yes'; pillText = 'Yes'; }
+    else if (l.replied === false) { pillClass = 'no'; pillText = 'No'; }
+    return `<tr><td>${l.lead_name || '—'}</td><td>${fmtDate(l.initial_sent_date)}</td>
+    <td><span class="pill ${pillClass}">${pillText}</span></td>
+    <td>${fmtDate(l.reply_date)}</td></tr>`;
+  }).join('') : '<tr><td colspan="4" class="empty">No leads in this range</td></tr>';
 
   document.getElementById('bookingsBody').innerHTML = d.bookings.length ? d.bookings.map(b => `
     <tr><td>${b.lead_name || '—'}</td><td>${fmtDate(b.booking_date)}</td></tr>`).join('')
@@ -483,7 +572,7 @@ async function loadGymDetail(){
 }
 
 async function refreshAll(){
-  if (inFlight) return; // agar pichla refresh abhi tak chal raha ho to nayi call skip — overlap se bachne ke liye
+  if (inFlight) return;
   inFlight = true;
   try{
     updateVisibilityForGym();
@@ -523,11 +612,16 @@ document.getElementById('gymSelect').addEventListener('change', e => {
   refreshAll();
 });
 
+document.getElementById('granularitySelect').addEventListener('change', () => {
+  lastLabelsKey = null;
+  loadTimeseries();
+});
+
 (async function init(){
   await loadGymList();
   await refreshAll();
-  setInterval(refreshAll, 2000);       // har 2 second me poora data silently refresh
-  setInterval(loadGymList, 60 * 1000); // naya gym add hone ki soorat me dropdown har 1 min me sync
+  setInterval(refreshAll, 2000);
+  setInterval(loadGymList, 60 * 1000);
 })();
 </script>
 </body>
