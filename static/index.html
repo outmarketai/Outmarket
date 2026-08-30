@@ -197,7 +197,7 @@
   <div class="panel" id="snapshotPanel">
     <h2>All Gyms Snapshot</h2>
     <div class="table-scroll" style="max-height:260px;">
-      <table><thead><tr><th>Gym</th><th>Leads</th><th>Reply Rate</th><th>Bookings</th></tr></thead>
+      <table><thead><tr><th>Gym</th><th>Leads</th><th>Replied</th><th>Reply Rate</th><th>Bookings</th></tr></thead>
       <tbody id="allGymsBody"></tbody></table>
     </div>
   </div>
@@ -511,9 +511,9 @@ function renderLbCard(containerId, rows, valueKey, color, isPercent){
 
 function renderAllGymsTable(allGyms){
   const body = document.getElementById('allGymsBody');
-  if (!allGyms.length){ body.innerHTML = '<tr><td colspan="4" class="empty">No gyms yet</td></tr>'; return; }
+  if (!allGyms.length){ body.innerHTML = '<tr><td colspan="5" class="empty">No gyms yet</td></tr>'; return; }
   body.innerHTML = allGyms.map(g => `
-    <tr><td>${g.gym_name}</td><td>${g.leads}</td><td>${g.reply_rate}%</td><td>${g.bookings}</td></tr>
+    <tr><td>${g.gym_name}</td><td>${g.leads}</td><td>${g.replied}</td><td>${g.reply_rate}%</td><td>${g.bookings}</td></tr>
   `).join('');
 }
 
